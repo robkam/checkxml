@@ -19,11 +19,10 @@ function should_ignore_folder {
 # Function to find XML files in a folder
 function find_xml_files {
     local folder="$1"
-    local indent="$2"
     local xml_files=$(find "$folder" -type f -name '*.xml' -not -path '*/\.*')
 
     if [ -z "$xml_files" ]; then
-        echo "${indent}No XML files found."
+        echo "No XML files found."
     else
         for xml_file in $xml_files; do
             echo ""
