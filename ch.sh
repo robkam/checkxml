@@ -26,7 +26,7 @@ function find_xml_files {
     else
         for xml_file in $xml_files; do
             echo ""
-            python3 checkxml.py "$xml_file"
+            python3 check_xml_integrity.py "$xml_file"
         done
     fi
 }
