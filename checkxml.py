@@ -38,8 +38,8 @@ class XMLHandler(xml.sax.ContentHandler):
         elif name == "revision":
             self.count_revision_close += 1
 
-# Function to check XML structure conditions
-def check_xml_structure(filename):
+# Function to check XML integrity conditions
+def check_xml_integrity(filename):
     handler = XMLHandler()
     parser = xml.sax.make_parser()
     parser.setContentHandler(handler)
@@ -84,14 +84,14 @@ def check_mediawiki_end_tag(filename):
 # Main script logic
 if __name__ == "__main__":
     if len(sys.argv) != 2:
-        print("Usage: python check_xml_structure.py <filename>")
+        print("Usage: python check_xml_integrity.py <filename>")
         sys.exit(1)
 
     filename = sys.argv[1]
-    xml_structure_result = check_xml_structure(filename)
+    xml_integrity_result = check_xml_integrity(filename)
     mediawiki_end_tag_result = check_mediawiki_end_tag(filename)
 
-    if xml_structure_result == (True, True) and mediawiki_end_tag_result:
-        print(f"{filename}\nFile structure is okay.")
+    if xml_integrity_result == (True, True) and mediawiki_end_tag_result:
+        print(f"{filename}\nFile integrity is okay.")
     else:
-        print(f"{filename}\nFile structure is not okay.")
+        print(f"{filename}\nFile integrity is not okay.")
