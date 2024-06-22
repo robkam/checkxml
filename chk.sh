@@ -1,10 +1,12 @@
 #!/bin/bash
 
+# run check_xml_inegrity.py on subfolders
+
 # Specify folders to ignore (comma-separated list)
 IGNORE_FOLDERS="snap,scratch"
 
 # Function to check if a folder should be ignored
-function should_ignore_folder {
+should_ignore_folder() {
     local folder_name="$1"
     local ignore_list="$IGNORE_FOLDERS"
     IFS=',' read -ra ignore_array <<< "$ignore_list"
@@ -17,18 +19,12 @@ function should_ignore_folder {
 }
 
 # Function to find XML files in a folder
-function find_xml_files {
+find_xml_files() {
     local folder="$1"
-    local xml_files=$(find "$folder" -type f -name '*.xml' -not -path '*/\.*')
-
-    if [ -z "$xml_files" ]; then
-        echo "No XML files found."
-    else
-        for xml_file in $xml_files; do
-            echo ""
-            python3 check_xml_integrity.py "$xml_file"
-        done
-    fi
+    find "$folder" -type f -name '*.xml' -not -path '*/\.*' | while IFS= read -r xml_file; do
+        echo ""
+        python3 checkxml.py "$xml_file"
+    done
 }
 
 # Main script logic
