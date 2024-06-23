@@ -2,17 +2,21 @@ import os
 import xml.sax
 import sys
 
-# Function to count occurrences of a pattern in the XML file
-def count_occurrences(pattern, filename):
+# Function to read file content and handle errors
+def read_file_content(filename):
     try:
         with open(filename, "r", encoding="utf-8") as file:
-            data = file.read()
-            return data.count(pattern)
+            return file.readlines()
     except FileNotFoundError:
         print(f"File {filename} not found.")
     except Exception as e:
         print(f"Error reading {filename}: {e}")
-    return 0
+    return []
+
+# Function to count occurrences of a pattern in the file content
+def count_occurrences(pattern, file_content):
+    data = "".join(file_content)
+    return data.count(pattern)
 
 # SAX ContentHandler to parse XML and count specific elements
 class XMLHandler(xml.sax.ContentHandler):
@@ -39,18 +43,15 @@ class XMLHandler(xml.sax.ContentHandler):
             self.count_revision_close += 1
 
 # Function to check XML integrity conditions
-def check_xml_integrity(filename):
+def check_xml_integrity(file_content):
     handler = XMLHandler()
     parser = xml.sax.make_parser()
     parser.setContentHandler(handler)
 
     try:
-        parser.parse(filename)
-    except FileNotFoundError:
-        print(f"File {filename} not found.")
-        return False, False
+        parser.parse(file_content)
     except Exception as e:
-        print(f"Error parsing {filename}: {e}")
+        print(f"Error parsing XML: {e}")
         return False, False
 
     # Check conditions for the first three patterns
@@ -67,17 +68,9 @@ def check_xml_integrity(filename):
     return first_three_conditions, last_two_conditions
 
 # Function to check </mediawiki> tag at the end of the XML file
-def check_mediawiki_end_tag(filename):
-    try:
-        with open(filename, "r", encoding="utf-8") as file:
-            last_line = file.readlines()[-1]
-            if "</mediawiki>" not in last_line:
-                return False
-    except FileNotFoundError:
-        print(f"File {filename} not found.")
-        return False
-    except Exception as e:
-        print(f"Error reading {filename}: {e}")
+def check_mediawiki_end_tag(file_content):
+    last_line = file_content[-1].strip() if file_content else ""
+    if "</mediawiki>" not in last_line:
         return False
     return True
 
@@ -88,8 +81,14 @@ if __name__ == "__main__":
         sys.exit(1)
 
     filename = sys.argv[1]
-    xml_integrity_result = check_xml_integrity(filename)
-    mediawiki_end_tag_result = check_mediawiki_end_tag(filename)
+    file_content = read_file_content(filename)
+
+    if not file_content:
+        print(f"{filename}\nFile reading failed or empty.")
+        sys.exit(1)
+
+    xml_integrity_result = check_xml_integrity(file_content)
+    mediawiki_end_tag_result = check_mediawiki_end_tag(file_content)
 
     if xml_integrity_result == (True, True) and mediawiki_end_tag_result:
         print(f"{filename}\nFile integrity is okay.")
